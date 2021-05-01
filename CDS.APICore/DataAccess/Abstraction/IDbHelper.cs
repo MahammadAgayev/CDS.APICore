@@ -9,6 +9,8 @@ namespace CDS.APICore.DataAccess.Abstraction
     {
         IDbTransaction CreateTransaction();
 
+        string[] GetColumns(Type t) => t.GetProperties().Select(x => x.Name).ToArray();
+
         void Insert(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres);
         void Update(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters);
 

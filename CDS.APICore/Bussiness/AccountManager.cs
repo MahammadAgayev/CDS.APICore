@@ -29,7 +29,6 @@ namespace CDS.APICore.Bussiness
 
             _db.Insert(_accountTable, tx, new Dictionary<string, object>
                 {
-                    { nameof(Account.Id), account.Id },
                     { nameof(Account.Username), account.Username },
                     { nameof(Account.PasswordHash), account.PasswordHash},
                     { nameof(Account.Created), account.Created },
@@ -41,20 +40,26 @@ namespace CDS.APICore.Bussiness
 
         public Account Get(string username)
         {
-            var data = _db.SimpleGet(_accountTable, typeof(Account).GetProperties().Select(x => x.Name).ToArray(), new Dictionary<string, object>
+            var data = _db.SimpleGet(_accountTable, _db.GetColumns(typeof(Account)), new Dictionary<string, object>
             {
                 { nameof(Account.Username), username }
             }, new Filter { Comparison = Comparison.Equal, Name = nameof(Account.Username) });
+
+            if (data.Rows.Count == 0)
+                return null;
 
             return this.getFromRow(data.Rows[0]);
         }
 
         public Account Get(int id)
         {
-            var data = _db.SimpleGet(_accountTable, typeof(Account).GetProperties().Select(x => x.Name).ToArray(), new Dictionary<string, object>
+            var data = _db.SimpleGet(_accountTable, _db.GetColumns(typeof(Account)), new Dictionary<string, object>
             {
                 { nameof(Account.Id), id }
             }, new Filter { Comparison = Comparison.Equal, Name = nameof(Account.Id) });
+
+            if (data.Rows.Count == 0)
+                return null;
 
             return this.getFromRow(data.Rows[0]);
         }

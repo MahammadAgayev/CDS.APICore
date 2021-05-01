@@ -7,6 +7,6 @@
         public string JoinColumn { get; set; }
         public string JoinsToColumn { get; set; }
         public string[] Columns { get; set; }
-        public JoinType JoinType { get; set; }
+        public JoinType JoinType { get; set; } = JoinType.Left;
     }
 }

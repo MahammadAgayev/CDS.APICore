@@ -68,7 +68,9 @@ namespace CDS.APICore.Services
             var account = new Account
             {
                 Username = request.Username,
-                PasswordHash = _hashService.Hash(request.Password).Digest
+                PasswordHash = _hashService.Hash(request.Password).Digest,
+                Created = DateTime.Now,
+                Updated = DateTime.Now
             };
 
             _accountManager.Create(account);
