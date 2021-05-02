@@ -76,7 +76,7 @@ namespace CDS.APICore.Bussiness
                     JoinColumn = "Id",
                     JoinsToColumn = "CustomerId",
                     JoinsToTableName = "CustomerLocations",
-                    Columns = new string[] { "Firstname", "Lastname", "Email", "Phone","Created","CommunicationType"},
+                    Columns = new string[] { "Firstname", "Lastname", "Email", "Phone","Created","CommunicationType", "IdentityTag"},
                 }
             };
         }

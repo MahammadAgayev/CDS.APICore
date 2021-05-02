@@ -11,5 +11,6 @@ namespace CDS.APICore.Bussiness.Abstraction
         void CreateCategory(CateringCategory category);
 
         List<Catering> Get();
+        Catering Get(int id);
     }
 }

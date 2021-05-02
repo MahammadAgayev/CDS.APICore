@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CDS.APICore.Controllers
 {
+    [ApiController]
     [Authorize]
-    [Route("api/v1")]
     public class CateringController : BaseController
     {
         private readonly ICateringService _cateringService;

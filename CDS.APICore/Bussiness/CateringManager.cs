@@ -68,23 +68,33 @@ namespace CDS.APICore.Bussiness
             return list;
         }
 
+        public Catering Get(int id)
+        {
+            var data = _db.JoinedGet("Caterings", this.getColumns(), new Join[]
+             {
+               this.getJoinWithCategory()
+             }, new Dictionary<string, object> { { "Id", id } }, new JoinFilter { Comparison = Comparison.Equal, Name = "Id", TableName = "Caterings" });
+
+            return data.Rows.Count > 0 ? this.getFromDbRow(data.Rows[0]) : null;
+        }
+
 
         private Catering getFromDbRow(DataRow row)
         {
             var catering = new Catering
             {
-                Id = Convert.ToInt32(row[nameof(Catering.Id)]),
-                Name = row[nameof(Catering.Name)].ToString(),
-                Comment = row[nameof(Catering.Comment)].ToString(),
-                AddressText = row[nameof(Catering.AddressText)].ToString(),
-                Latitude = Convert.ToDecimal(row[nameof(Catering.Latitude)]),
-                Longitude = Convert.ToDecimal(row[nameof(Catering.Longitude)]),
+                Id = DbConverter.ToInt32(row, nameof(Catering.Id)),
+                Name = DbConverter.ToString(row, nameof(Catering.Name)),
+                Comment = DbConverter.ToString(row, nameof(Catering.Comment)),
+                AddressText = DbConverter.ToString(row, nameof(Catering.AddressText)),
+                Latitude = DbConverter.ToDecimal(row, nameof(Catering.Latitude)),
+                Longitude = DbConverter.ToDecimal(row, nameof(Catering.Longitude)),
                 CateringCategory = new CateringCategory
                 {
-                    Id = Convert.ToInt32(row["CategoryId"]),
-                    Name = row["CateringName"].ToString(),
-                    Comment = row["CateringComment"].ToString(),
-                    DisplayName = row["DisplayName"].ToString(),
+                    Id = DbConverter.ToInt32(row, "CategoryId"),
+                    Name = DbConverter.ToString(row, "CateringName"),
+                    Comment = DbConverter.ToString(row, "CateringComment"),
+                    DisplayName = DbConverter.ToString(row, "DisplayName"),
                 }
             };
 

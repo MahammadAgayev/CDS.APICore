@@ -11,7 +11,7 @@ namespace CDS.APICore.DataAccess.Abstraction
 
         string[] GetColumns(Type t) => t.GetProperties().Select(x => x.Name).ToArray();
 
-        void Insert(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres);
+        DataRow Insert(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres);
         void Update(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters);
 
         DataTable SimpleGet(string tablename, string[] columns, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters);

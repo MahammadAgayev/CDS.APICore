@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CDS.APICore.Controllers
 {
     [Controller]
+    [Route("api/v1")]
     public class BaseController : ControllerBase
     {
         // returns the current authenticated account (null if not logged in)

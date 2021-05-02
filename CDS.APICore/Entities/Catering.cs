@@ -12,7 +12,7 @@ namespace CDS.APICore.Entities
         public CateringCategory CateringCategory { get; set; }
         public string Comment { get; set; }
         public string AddressText { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
     }
 }

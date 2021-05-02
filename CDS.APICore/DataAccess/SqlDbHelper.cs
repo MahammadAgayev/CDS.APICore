@@ -46,7 +46,7 @@ namespace CDS.APICore.DataAccess
 
                     SafeActionExecutor.Execute(() => tx.Rollback());
                     SafeActionExecutor.Execute(() => tx.Dispose());
-                    SafeActionExecutor.Execute(() => tx.Dispose());
+                    SafeActionExecutor.Execute(() => connection.Dispose());
                 }
             }
 
@@ -55,12 +55,12 @@ namespace CDS.APICore.DataAccess
 
         public IDbTransaction CreateTransaction() => this.innerCreateTransaction();
 
-        public void Insert(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres)
+        public DataRow Insert(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres)
         {
             string columns = string.Join(',', parametres.Select(x => x.Key));
             string values = string.Join(',', parametres.Select(x => $"@{x.Key}"));
 
-            string query = $"insert into {tablename}({columns}) values ({values})";
+            string query = $"insert into {tablename}({columns}) output inserted.* values ({values})";
 
             var (tx, con) = this.getConnection(transaction);
 
@@ -73,7 +73,12 @@ namespace CDS.APICore.DataAccess
                 _ = cmd.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-            _ = cmd.ExecuteNonQuery();
+           using var readder = cmd.ExecuteReader();
+
+            var dt = new DataTable();
+            dt.Load(readder);
+
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
         public void Update(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters)
@@ -233,7 +238,7 @@ namespace CDS.APICore.DataAccess
                 _ = cmd.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
 
             return this.getFromReader(reader);
         }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using CDS.APICore.Entities.Enums;
 
 namespace CDS.APICore.Entities
 {
@@ -12,7 +11,9 @@ namespace CDS.APICore.Entities
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+        public string IdentityTag { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
+        public CommunicationType CommunicationType { get; set; } 
     }
 }

@@ -12,7 +12,8 @@ namespace CDS.APICore.Entities
         public decimal TotalPrice { get; set; }
         public DateTime Created { get; set; }
         public DateTime Inserted { get; set; }
+        public Catering Catering { get; set; }
 
-        public List<OrderItems> Items { get; set; }
+        public List<OrderItem> Items { get; set; }
     }
 }
