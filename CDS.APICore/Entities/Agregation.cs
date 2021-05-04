@@ -13,6 +13,7 @@ namespace CDS.APICore.Entities
         public decimal Average { get; set; }
         public decimal Min { get; set; }
         public decimal Max { get; set; }
+        public decimal Sum { get; set; }
         public AgregationBy AgregationBy { get; set; }
         public PeriodType PeriodType { get; set; }
         public DateTime PeriodStart { get; set; }

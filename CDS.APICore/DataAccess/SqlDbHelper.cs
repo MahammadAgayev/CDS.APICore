@@ -5,8 +5,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using CDS.APICore.DataAccess.Abstraction;
 using CDS.APICore.Helpers;
@@ -128,6 +126,27 @@ namespace CDS.APICore.DataAccess
             return this.executeQuery(query, transaction, parametres);
         }
 
+        public DataTable Query(string query, IDbTransaction tx, Dictionary<string, object> parametres)
+        {
+            return this.executeQuery(query, tx, parametres);
+        }
+
+        public T ExecuteScalar<T>(string query, IDbTransaction tx, Dictionary<string, object> parametres)
+        {
+            var cmd = this.createCommand(query, tx, parametres);
+
+            var val = cmd.ExecuteScalar();
+
+            return val == DBNull.Value ? default : (T)val;
+        }
+
+        public void Execute(string query, IDbTransaction tx, Dictionary<string, object> parametres)
+        {
+            var cmd = this.createCommand(query, tx, parametres);
+
+            cmd.ExecuteNonQuery();
+        }
+
 
         private SqlTransaction innerCreateTransaction()
         {
@@ -227,6 +246,16 @@ namespace CDS.APICore.DataAccess
 
         private DataTable executeQuery(string query, IDbTransaction transaction, Dictionary<string, object> parametres)
         {
+            var cmd = this.createCommand(query, transaction, parametres);
+
+            using var reader = cmd.ExecuteReader();
+
+            return this.getFromReader(reader);
+        }
+
+        private SqlCommand createCommand(string query, IDbTransaction transaction, Dictionary<string, object> parametres)
+        {
+
             var (tx, con) = this.getConnection(transaction);
 
             var cmd = con.CreateCommand();
@@ -238,9 +267,7 @@ namespace CDS.APICore.DataAccess
                 _ = cmd.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-            using var reader = cmd.ExecuteReader();
-
-            return this.getFromReader(reader);
+            return cmd;
         }
     }
 }
