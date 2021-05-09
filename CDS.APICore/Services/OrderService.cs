@@ -54,7 +54,7 @@ namespace CDS.APICore.Services
             {
                 Created = _timeManager.Parse(request.CreationDate, SystemDefaults.DefaultFormat),
                 Customer = customer,
-                TotalPrice = request.TotalPrice,
+                TotalAmount = request.TotalPrice,
                 Catering = _cateringManager.Get(request.CateringId) ?? throw new AppException($"Caterign with '{request.CateringId}' doesn't exists")
             };
 

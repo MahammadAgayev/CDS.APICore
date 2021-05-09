@@ -26,7 +26,7 @@ namespace CDS.APICore.Bussiness
             {
                 { nameof(Order.Inserted), DateTime.Now },
                 { nameof(Order.Created), order.Created },
-                { nameof(Order.TotalPrice), order.TotalPrice },
+                { nameof(Order.TotalAmount), order.TotalAmount },
                 { "CateringId", order.Catering.Id },
                 { "CustomerId", order.Customer.Id }
             });

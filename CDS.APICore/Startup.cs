@@ -79,20 +79,20 @@ namespace CDS.APICore
                 _ = q.AddTrigger(opts => opts
                     .ForJob(jobKey) // link to the DailyAgregationJob
                     .WithIdentity("DailyAgregationJob-Catering-trigger") // give the trigger a unique name
-                    .WithCronSchedule("0/5 * * * * ?")
-                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Catering } }))); // run every 5 seconds
+                    .WithCronSchedule("1 * * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Catering } })));
 
-                _ = q.AddTrigger(opts => opts
-                    .ForJob(jobKey) // link to the DailyAgregationJob
-                    .WithIdentity("DailyAgregationJob-Customer-trigger") // give the trigger a unique name
-                    .WithCronSchedule("0/5 * * * * ?")
-                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Customer } }))); // run every 5 seconds
+                //_ = q.AddTrigger(opts => opts
+                //    .ForJob(jobKey) // link to the DailyAgregationJob
+                //    .WithIdentity("DailyAgregationJob-Customer-trigger") // give the trigger a unique name
+                //    .WithCronSchedule("0/5 * * * * ?")
+                //    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Customer } }))); 
 
-                _ = q.AddTrigger(opts => opts
-                    .ForJob(jobKey) // link to the DailyAgregationJob
-                    .WithIdentity("DailyAgregationJob-CustomerCatering-trigger") // give the trigger a unique name
-                    .WithCronSchedule("0/5 * * * * ?")
-                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.CustomerCatering } }))); // run every 5 seconds
+                //_ = q.AddTrigger(opts => opts
+                //    .ForJob(jobKey) // link to the DailyAgregationJob
+                //    .WithIdentity("DailyAgregationJob-CustomerCatering-trigger") // give the trigger a unique name
+                //    .WithCronSchedule("0/5 * * * * ?")
+                //    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.CustomerCatering } }))); 
             });
 
             _ = services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

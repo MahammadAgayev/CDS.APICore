@@ -14,7 +14,7 @@ namespace CDS.APICore.Bussiness
 
         public DateTime FromUnixTime(double unixTimestamp)
         {
-            return _unix.AddSeconds(unixTimestamp).ToLocalTime();
+            return _unix.AddSeconds(unixTimestamp);
         }
 
         public DateTime Parse(string rawdate, string format)

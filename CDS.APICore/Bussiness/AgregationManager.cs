@@ -120,11 +120,11 @@ namespace CDS.APICore.Bussiness
             string groupedColumnsQuery = groupColumns is null ? "" : $",{string.Join(",", groupColumns)}";
 
             return @$"select FLOOR(DATEDIFF(second, '1970-01-01', {dateColumn})/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} as periodtsart, count(1) as [count], sum({countableColumn}) as [sum], avg({countableColumn}) as [avg], min({countableColumn}) as [min],
-                       max({countableColumn}) as [max]
-                      {groupedColumnsQuery}
+                     max({countableColumn}) as [max]
+                     {groupedColumnsQuery}
                      from {tablename}
-                     group by FLOOR(DATEDIFF(second, '1970-01-01', {dateColumn})/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} {groupedColumnsQuery}
-                     where {dateColumn} > @from";
+                     where {dateColumn} > @from
+                     group by FLOOR(DATEDIFF(second, '1970-01-01', {dateColumn})/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} {groupedColumnsQuery}";
         }
 
         private string createCateringAgregationQuery(PeriodType periodType, DateTime from)
@@ -153,9 +153,11 @@ namespace CDS.APICore.Bussiness
 
         private void insertAggr(Agregation agregation, IDbTransaction tx)
         {
+            agregation.Created = DateTime.Now;
+
             var keyValues = _reflectionHelper.GetKeyValue(agregation);
 
-            _db.Insert("Aggregations", tx, keyValues.Where(x => x.Key.ToLowerInvariant() != "id").ToDictionary(x => x.Key, x => x.Value));
+            _db.Insert("Agregations", tx, keyValues.Where(x => x.Key.ToLowerInvariant() != "id").ToDictionary(x => x.Key, x => x.Value));
         }
 
 
@@ -163,7 +165,7 @@ namespace CDS.APICore.Bussiness
         {
             return new Agregation
             {
-                PeriodStart = _timeManager.FromUnixTime(row.Field<double>("periodtsart")),
+                PeriodStart = _timeManager.FromUnixTime(row.Field<int>("periodtsart")),
                 Count = row.Field<int>("count"),
                 Sum = row.Field<decimal>("sum"),
                 Average = row.Field<decimal>("avg"),

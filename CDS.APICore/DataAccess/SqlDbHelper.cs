@@ -79,7 +79,7 @@ namespace CDS.APICore.DataAccess
             return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-        public void Update(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters)
+        public int Update(string tablename, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -100,7 +100,7 @@ namespace CDS.APICore.DataAccess
                 _ = cmd.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-            _ = cmd.ExecuteNonQuery();
+            return cmd.ExecuteNonQuery();
         }
 
         public DataTable SimpleGet(string tablename, string[] columns, IDbTransaction transaction,Dictionary<string, object> parametres, params Filter[] filters)

@@ -9,7 +9,7 @@ namespace CDS.APICore.Entities
     {
         public int Id { get; set; }
         public Customer Customer { get; set; }
-        public decimal TotalPrice { get; set; }
+        public decimal TotalAmount { get; set; }
         public DateTime Created { get; set; }
         public DateTime Inserted { get; set; }
         public Catering Catering { get; set; }
