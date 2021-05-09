@@ -6,7 +6,6 @@ namespace CDS.APICore.Models.Agregation
     public class AgregationSettings
     {
         public string Name { get; set; }
-        public string Tag { get; set; }
         public AgregationBy AgregationBy { get; set; }
         public PeriodType PeriodType { get; set; }
     }

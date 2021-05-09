@@ -5,7 +5,6 @@ using System.Text;
 
 namespace CDS.APICore.Services
 {
-
     public interface IHashService
     {
         HashResult Hash(string password);

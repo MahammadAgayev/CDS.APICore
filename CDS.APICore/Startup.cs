@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 
 using CDS.APICore.Bussiness;
 using CDS.APICore.Bussiness.Abstraction;
 using CDS.APICore.DataAccess;
 using CDS.APICore.DataAccess.Abstraction;
+using CDS.APICore.Entities.Enums;
 using CDS.APICore.Helpers;
+using CDS.APICore.Jobs;
 using CDS.APICore.Middlewares;
 using CDS.APICore.Services;
 
@@ -15,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+
+using Quartz;
 
 namespace CDS.APICore
 {
@@ -34,7 +39,7 @@ namespace CDS.APICore
             _ = services.AddCors();
             _ = services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
-            services.AddSwaggerGen(setup =>
+            _ = services.AddSwaggerGen(setup =>
             {
                 // Include 'SecurityScheme' to use JWT Authentication
                 var jwtSecurityScheme = new OpenApiSecurityScheme
@@ -56,11 +61,41 @@ namespace CDS.APICore
                 setup.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
 
                 setup.AddSecurityRequirement(new OpenApiSecurityRequirement
-                 {
+                {
                       { jwtSecurityScheme, Array.Empty<string>() }
-                 });
+                });
 
             });
+
+
+            _ = services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionScopedJobFactory();
+
+                var jobKey = new JobKey(nameof(DailyAgregationJob));
+
+                _ = q.AddJob<DailyAgregationJob>(opts => opts.WithIdentity(jobKey));
+
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey) // link to the DailyAgregationJob
+                    .WithIdentity("DailyAgregationJob-Catering-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0/5 * * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Catering } }))); // run every 5 seconds
+
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey) // link to the DailyAgregationJob
+                    .WithIdentity("DailyAgregationJob-Customer-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0/5 * * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Customer } }))); // run every 5 seconds
+
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey) // link to the DailyAgregationJob
+                    .WithIdentity("DailyAgregationJob-CustomerCatering-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0/5 * * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.CustomerCatering } }))); // run every 5 seconds
+            });
+
+            _ = services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             _ = services.Configure<AppSettings>(this.Configuration.GetSection("AppSettings"));
 
@@ -72,6 +107,9 @@ namespace CDS.APICore
             _ = services.AddScoped<ICustomerManager, CustomerManager>();
             _ = services.AddScoped<IOrderManager, OrderManager>();
             _ = services.AddScoped<ITimeManager, TimeManager>();
+            _ = services.AddScoped<IReflectionHelper, ReflectionHelper>();
+            _ = services.AddScoped<ITagManager, TagManager>();
+            _ = services.AddScoped<IAgregationManager, AgregationManager>();
 
             _ = services.AddScoped<IHashService, HashService>();
             _ = services.AddScoped<IAccountService, AccountService>();

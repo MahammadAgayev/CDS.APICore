@@ -5,6 +5,6 @@
         Customer = 1,
         Catering = 2,
         CateringCategory = 3,
-        ItemCategory = 4
+        CustomerCatering = 5,
     }
 }

@@ -6,5 +6,7 @@ namespace CDS.APICore.Bussiness.Abstraction
     {
         DateTime Parse(string rawdate, string format);
         DateTime Now { get; }
+
+        DateTime FromUnixTime(double unixTimestamp);
     }
 }
