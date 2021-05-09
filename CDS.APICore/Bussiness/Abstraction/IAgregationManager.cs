@@ -9,5 +9,6 @@ namespace CDS.APICore.Bussiness.Abstraction
         void AgregateCaterings(PeriodType periodType, DateTime from);
         void AgregateCustomers(PeriodType periodType, DateTime from);
         void AgregateCateringCustomers(PeriodType periodType, DateTime from);
+        void AggregateLocations(PeriodType periodType, DateTime from);
     }
 }

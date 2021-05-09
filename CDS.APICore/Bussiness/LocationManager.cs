@@ -18,19 +18,14 @@ namespace CDS.APICore.Bussiness
             _db = db;
         }
 
-        public void AgregateLocations()
-        {
-            //TODO
-        }
-
         public List<CustomerMostUsedLocation> GetLocations(int customerId)
         {
             var data = _db.JoinedGet("CustomerMostUsedLocations",
-                new string[] { "Id", "LocationId", "Tag", "ActiveStartTime", "ActiveEndTime" }, this.getJoins(),
+                new string[] { "Id", "Latitude", "Longitude", "ActiveStartTime", "ActiveEndTime" }, this.getJoins(),
                 new Dictionary<string, object>
                 {
                     { "CustomerId", customerId }
-                }, new JoinFilter { TableName = "CustomerLocations", Name = "CustomerId", Comparison = Comparison.Equal });
+                }, new JoinFilter { TableName = "Customers", Name = "Id", Comparison = Comparison.Equal });
 
             var list = new List<CustomerMostUsedLocation>();
 
@@ -64,18 +59,10 @@ namespace CDS.APICore.Bussiness
             {
                 new Join
                 {
-                    TableName = "CustomerLocations",
-                    JoinColumn = "Id",
-                    JoinsToColumn = "LocationId",
-                    JoinsToTableName = "CustomerMostUsedLocations",
-                    Columns = new string[] { "CustomerId", "Latitude","Longitude" }
-                },
-                new Join
-                {
                     TableName = "Customers",
                     JoinColumn = "Id",
                     JoinsToColumn = "CustomerId",
-                    JoinsToTableName = "CustomerLocations",
+                    JoinsToTableName = "CustomerMostUsedLocations",
                     Columns = new string[] { "Firstname", "Lastname", "Email", "Phone","Created","CommunicationType", "IdentityTag"},
                 }
             };
@@ -85,25 +72,20 @@ namespace CDS.APICore.Bussiness
         {
             return new CustomerMostUsedLocation
             {
-                Id = Convert.ToInt32(row["Id"]),
-                Tag = row["Tag"].ToString(),
-                ActiveStartTime = Convert.ToDateTime(row["ActiveStartTime"]),
-                ActiveEndTime = Convert.ToDateTime(row["ActiveEndTime"]),
-                Location = new CustomerLocation
+                Id = row.Field<int>("Id"),
+                ActiveStartTime = row.Field<DateTime>("ActiveStartTime"),
+                ActiveEndTime = row.Field<DateTime>("ActiveEndTime"),
+                Latitude = row.Field<decimal>("Latitude"),
+                Longitude = row.Field<decimal>("Longitude"),
+                Customer = new Customer
                 {
-                    Id = Convert.ToInt32(row["LocationId"]),
-                    Latitude = Convert.ToDecimal(row["Latitude"]),
-                    Longitude = Convert.ToDecimal(row["Longitude"]),
-                    Customer = new Customer
-                    {
-                        Id = Convert.ToInt32(row["CustomerId"]),
-                        FirstName = row["FirstName"].ToString(),
-                        LastName = row["LastName"].ToString(),
-                        Email = row["Email"].ToString(),
-                        Phone = row["Phone"].ToString(),
-                        Created = Convert.ToDateTime(row["Created"]),
-                        Updated = Convert.ToDateTime(row["Updated"])
-                    }
+                    Id = row.Field<int>("CustomerId"),
+                    FirstName = row.Field<string>("FirstName"),
+                    LastName = row.Field<string>("LastName"),
+                    Email = row.Field<string>("Email"),
+                    Phone = row.Field<string>("Phone"),
+                    Created = row.Field<DateTime>("Created"),
+                    Updated = row.Field<DateTime>("Updated")
                 }
             };
         }

@@ -103,12 +103,32 @@ namespace CDS.APICore.Bussiness
                 int cateringId = item.Field<int>(AgregationConstants.CateringId);
 
                 aggrr.AgregationBy = AgregationBy.Customer;
-                aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> { { AgregationConstants.CustomerId, customerId.ToString() }, 
+                aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> { { AgregationConstants.CustomerId, customerId.ToString() },
                     { AgregationConstants.CateringId, cateringId.ToString() } });
                 aggrr.Name = $"Aggr_{_customerManager.Get(customerId).IdentityTag}_{periodType}";
                 aggrr.PeriodType = periodType;
 
                 this.insertAggr(aggrr, tx);
+            }
+
+            tx.Commit();
+        }
+
+        public void AggregateLocations(PeriodType periodType, DateTime from)
+        {
+            using var tx = _db.CreateTransaction();
+
+            string query = this.createLocationAgregationQuery(periodType, from);
+
+            var data = _db.Query(query, tx, new Dictionary<string, object> { { "from", from } });
+
+            foreach (var item in data.Rows.OfType<DataRow>())
+            {
+                var locData = this.getLocationFromDbRow(item);
+
+                locData.Customer = _customerManager.Get(item.Field<int>("CustomerId"));
+
+                _db.Insert("CustomerMostUsedLocations", tx, _reflectionHelper.GetKeyValue(locData));
             }
 
             tx.Commit();
@@ -142,6 +162,17 @@ namespace CDS.APICore.Bussiness
             return this.createQueryDynamic("Orders", "TotalAmount", "Created", periodType, from, AgregationConstants.CustomerId, AgregationConstants.CateringId);
         }
 
+        private string createLocationAgregationQuery(PeriodType periodType, DateTime from)
+        {
+            return @$"select FLOOR(DATEDIFF(second, '1970-01-01', Created)/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} as periodtsart, 
+                      avg(Latitude) avglatitude,
+                      avg(Longitude) avglongitude,
+                     CustomerId,
+                     from CustomerLocations
+                     where Created > @from
+                     group by FLOOR(DATEDIFF(second, '1970-01-01', Created)/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)}, CustomerId";
+        }
+
         private int getDiffSecond(PeriodType periodType) => periodType switch
         {
             PeriodType.Daily => 86400,
@@ -171,6 +202,16 @@ namespace CDS.APICore.Bussiness
                 Average = row.Field<decimal>("avg"),
                 Min = row.Field<decimal>("min"),
                 Max = row.Field<decimal>("max"),
+            };
+        }
+
+        private CustomerMostUsedLocation getLocationFromDbRow(DataRow row)
+        {
+            return new CustomerMostUsedLocation
+            {
+                Latitude = row.Field<decimal>("avglatitude"),
+                Longitude = row.Field<decimal>("avglongitude"),
+                ActiveStartTime = _timeManager.FromUnixTime(row.Field<int>("periodtsart"))
             };
         }
     }

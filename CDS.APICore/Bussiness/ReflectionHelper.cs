@@ -9,7 +9,7 @@ namespace CDS.APICore.Bussiness
     {
         public Dictionary<string, object> GetKeyValue(object o)
         {
-            return o.GetType().GetProperties().ToDictionary(x => x.Name, x => x.GetValue(o));
+            return o.GetType().GetProperties().Where(x => x.GetValue(o) != default).ToDictionary(x => x.Name, x => x.GetValue(o));
         }
     }
 }

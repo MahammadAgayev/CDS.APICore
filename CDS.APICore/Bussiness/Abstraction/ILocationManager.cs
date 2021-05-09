@@ -11,7 +11,6 @@ namespace CDS.APICore.Bussiness.Abstraction
     {
         void Save(CustomerLocation location);
 
-        void AgregateLocations();
 
         List<CustomerMostUsedLocation> GetLocations(int customerId);
     }

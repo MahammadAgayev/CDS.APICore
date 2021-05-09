@@ -11,12 +11,14 @@ namespace CDS.APICore.Jobs
     [DisallowConcurrentExecution]
     public class DailyAgregationJob : IJob
     {
-        private const string _paramKey = "dailyagrcheckpoint";
+        private const string _paramKeyCatering = "dailyaggrcateringcheckpoint";
+        private const string _paramKeyCustomer = "dailyaggrcustomercheckpoint";
+        private const string _paramKeyCustomerCatering = "dailyaggrcustomercateringcheckpoint";
 
         private readonly IAgregationManager _agregationManager;
         private readonly ITimeManager _timeManager;
         private readonly IParamManager _paramManager;
-        
+
         public DailyAgregationJob(IAgregationManager agregationManager, ITimeManager timeManager, IParamManager paramManager)
         {
             _agregationManager = agregationManager;
@@ -26,33 +28,36 @@ namespace CDS.APICore.Jobs
 
         public Task Execute(IJobExecutionContext context)
         {
-            if(context.Trigger.JobDataMap.TryGetValue("AgregationType", out var agrrBy))
+            if (context.Trigger.JobDataMap.TryGetValue("AgregationType", out var agrrBy))
             {
-                if(agrrBy is null)
+                if (agrrBy is null)
                 {
                     throw new InvalidOperationException("Job trigger agregation type cannot be null");
                 }
 
-                var lastdate = _paramManager.GetValue<DateTime>(_paramKey);
 
                 AgregationBy agregation = (AgregationBy)agrrBy;
 
                 switch (agregation)
                 {
                     case AgregationBy.Customer:
-                        _agregationManager.AgregateCustomers(PeriodType.Daily, lastdate);
+                        var culastdate = _paramManager.GetValue<DateTime>(_paramKeyCustomer);
+                        _agregationManager.AgregateCustomers(PeriodType.Daily, culastdate);
+                        _paramManager.SetValue(_paramKeyCustomer, culastdate.AddDays(1));
                         break;
                     case AgregationBy.Catering:
-                        _agregationManager.AgregateCaterings(PeriodType.Daily, lastdate);
+                        var calastdate = _paramManager.GetValue<DateTime>(_paramKeyCatering);
+                        _agregationManager.AgregateCaterings(PeriodType.Daily, calastdate);
+                        _paramManager.SetValue(_paramKeyCatering, calastdate.AddDays(1));
                         break;
                     case AgregationBy.CateringCategory:
                         break;
                     case AgregationBy.CustomerCatering:
-                        _agregationManager.AgregateCateringCustomers(PeriodType.Daily, lastdate);
+                        var cclastdate = _paramManager.GetValue<DateTime>(_paramKeyCustomerCatering);
+                        _agregationManager.AgregateCateringCustomers(PeriodType.Daily, cclastdate);
+                        _paramManager.SetValue(_paramKeyCustomerCatering, cclastdate.AddDays(1));
                         break;
                 }
-
-                _paramManager.SetValue(_paramKey, lastdate.AddDays(1));
 
                 return Task.CompletedTask;
             }
