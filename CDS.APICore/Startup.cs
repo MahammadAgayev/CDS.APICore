@@ -73,26 +73,33 @@ namespace CDS.APICore
                 q.UseMicrosoftDependencyInjectionScopedJobFactory();
 
                 var jobKey = new JobKey(nameof(DailyAgregationJob));
+                var jobKey2 = new JobKey(nameof(DailyLocationAgregationJob));
 
                 _ = q.AddJob<DailyAgregationJob>(opts => opts.WithIdentity(jobKey));
+                _ = q.AddJob<DailyLocationAgregationJob>(o => o.WithIdentity(jobKey2));
 
                 _ = q.AddTrigger(opts => opts
                     .ForJob(jobKey) // link to the DailyAgregationJob
                     .WithIdentity("DailyAgregationJob-Catering-trigger") // give the trigger a unique name
-                    .WithCronSchedule("1 * * * * ?")
+                    .WithCronSchedule("0 3 * * * ?")
                     .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Catering } })));
 
-                //_ = q.AddTrigger(opts => opts
-                //    .ForJob(jobKey) // link to the DailyAgregationJob
-                //    .WithIdentity("DailyAgregationJob-Customer-trigger") // give the trigger a unique name
-                //    .WithCronSchedule("0/5 * * * * ?")
-                //    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Customer } }))); 
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey) // link to the DailyAgregationJob
+                    .WithIdentity("DailyAgregationJob-Customer-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0 4 * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.Customer } })));
 
-                //_ = q.AddTrigger(opts => opts
-                //    .ForJob(jobKey) // link to the DailyAgregationJob
-                //    .WithIdentity("DailyAgregationJob-CustomerCatering-trigger") // give the trigger a unique name
-                //    .WithCronSchedule("0/5 * * * * ?")
-                //    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.CustomerCatering } }))); 
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey) // link to the DailyAgregationJob
+                    .WithIdentity("DailyAgregationJob-CustomerCatering-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0 5 * * * ?")
+                    .UsingJobData(new JobDataMap(new Dictionary<string, AgregationBy>() { { "AgregationType", AgregationBy.CustomerCatering } })));
+
+                _ = q.AddTrigger(opts => opts
+                    .ForJob(jobKey2) // link to the DailyAgregationJob
+                    .WithIdentity("DailyLocationAgregationJob-trigger") // give the trigger a unique name
+                    .WithCronSchedule("0 6 * * * ?"));
             });
 
             _ = services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
@@ -110,12 +117,14 @@ namespace CDS.APICore
             _ = services.AddScoped<IReflectionHelper, ReflectionHelper>();
             _ = services.AddScoped<ITagManager, TagManager>();
             _ = services.AddScoped<IAgregationManager, AgregationManager>();
+            _ = services.AddScoped<IParamManager, DbParamManager>();
 
             _ = services.AddScoped<IHashService, HashService>();
             _ = services.AddScoped<IAccountService, AccountService>();
             _ = services.AddScoped<ICateringService, CateringService>();
             _ = services.AddScoped<ILocationService, LocationService>();
             _ = services.AddScoped<IOrderService, OrderService>();
+            _ = services.AddScoped<IOfferService, OfferService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

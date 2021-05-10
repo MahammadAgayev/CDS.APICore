@@ -7,7 +7,7 @@ namespace CDS.APICore.Bussiness
 {
     public class TimeManager : ITimeManager
     {
-        private readonly DateTime _unix = new DateTime(1970,1,1,0,0,0,0, System.DateTimeKind.Utc);
+        private readonly DateTime _unix = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 
 
         public DateTime Now => DateTime.Now;
@@ -20,6 +20,11 @@ namespace CDS.APICore.Bussiness
         public DateTime Parse(string rawdate, string format)
         {
             return DateTime.ParseExact(rawdate, format, CultureInfo.InvariantCulture);
+        }
+
+        public bool CheckIfWeekend(DateTime date)
+        {
+            return (date.DayOfWeek == DayOfWeek.Saturday) || (date.DayOfWeek == DayOfWeek.Sunday);
         }
     }
 }

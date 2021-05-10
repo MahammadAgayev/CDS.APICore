@@ -8,5 +8,9 @@ namespace CDS.APICore.Bussiness.Abstraction
         DateTime Now { get; }
 
         DateTime FromUnixTime(double unixTimestamp);
+
+        bool CheckIfWeekend(DateTime date);
+        bool CheckIfTodayWeekend() => this.CheckIfWeekend(this.Now);
+
     }
 }

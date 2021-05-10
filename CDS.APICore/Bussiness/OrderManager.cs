@@ -12,10 +12,12 @@ namespace CDS.APICore.Bussiness
     public class OrderManager : IOrderManager
     {
         private readonly IDbHelper _db;
+        private readonly IReflectionHelper _reflectionHelper;
 
-        public OrderManager(IDbHelper db)
+        public OrderManager(IDbHelper db, IReflectionHelper reflectionHelper)
         {
             _db = db;
+            _reflectionHelper = reflectionHelper;
         }
 
         public void Create(Order order)
@@ -63,7 +65,7 @@ namespace CDS.APICore.Bussiness
 
         public ItemCategory GetCategory(int id)
         {
-            var data = _db.SimpleGet("ItemCategories", _db.GetColumns(typeof(ItemCategory)), new Dictionary<string, object>
+            var data = _db.SimpleGet("ItemCategories", _reflectionHelper.GetPropNames(typeof(ItemCategory)), new Dictionary<string, object>
             {
                 { "Id" ,  id}
             }, new Filter { Comparison = Comparison.Equal, Name = "Id" });

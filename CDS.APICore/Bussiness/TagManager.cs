@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,6 +33,13 @@ namespace CDS.APICore.Bussiness
             }
 
             return dict;
+        }
+
+        public T UnTag<T>(string tag, string key)
+        {
+            var values = this.UnTag(tag);
+
+            return (T)Convert.ChangeType(values[key], typeof(T));
         }
     }
 }

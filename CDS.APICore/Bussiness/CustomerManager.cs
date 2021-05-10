@@ -12,10 +12,12 @@ namespace CDS.APICore.Bussiness
     public class CustomerManager : ICustomerManager
     {
         private readonly IDbHelper _db;
+        private readonly IReflectionHelper _reflectionHelper;
 
-        public CustomerManager(IDbHelper db)
+        public CustomerManager(IDbHelper db,  IReflectionHelper reflectionHelper)
         {
             _db = db;
+            _reflectionHelper = reflectionHelper;
         }
 
         public void Create(Customer customer)
@@ -41,7 +43,7 @@ namespace CDS.APICore.Bussiness
 
         public Customer Get(int id)
         {
-            var data = _db.SimpleGet("Customers", _db.GetColumns(typeof(Customer)), new Dictionary<string, object>
+            var data = _db.SimpleGet("Customers", _reflectionHelper.GetPropNames(typeof(Customer)), new Dictionary<string, object>
             {
                 { "Id", id }
             }, new Filter { Comparison = Comparison.Equal, Name = "Id" });
@@ -56,7 +58,7 @@ namespace CDS.APICore.Bussiness
         {
             DataTable data = null;
 
-            data = _db.SimpleGet("Customers", _db.GetColumns(typeof(Customer)), new Dictionary<string, object>
+            data = _db.SimpleGet("Customers", _reflectionHelper.GetPropNames(typeof(Customer)), new Dictionary<string, object>
             {
                 { "IdentityTag",  identitytag}
             }, new Filter { Comparison = Comparison.Equal, Name = "IdentityTag" });

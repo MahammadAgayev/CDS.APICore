@@ -7,5 +7,7 @@ namespace CDS.APICore.Bussiness.Abstraction
         string Tag(Dictionary<string, string> valuePairs);
 
         Dictionary<string, string> UnTag(string tag);
+
+        T UnTag<T>(string tag, string key);
     }
 }

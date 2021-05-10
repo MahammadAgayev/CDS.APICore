@@ -13,13 +13,17 @@ namespace CDS.APICore.Bussiness
 {
     public class AccountManager : IAccountManager
     {
-        private readonly IDbHelper _db;
-
         private const string _accountTable = "Accounts";
 
-        public AccountManager(IDbHelper db)
+        private readonly IDbHelper _db;
+
+        private readonly IReflectionHelper _reflectionHelper;
+
+
+        public AccountManager(IDbHelper db, IReflectionHelper reflectionHelper)
         {
             _db = db;
+            _reflectionHelper = reflectionHelper;
         }
 
 
@@ -40,7 +44,7 @@ namespace CDS.APICore.Bussiness
 
         public Account Get(string username)
         {
-            var data = _db.SimpleGet(_accountTable, _db.GetColumns(typeof(Account)), new Dictionary<string, object>
+            var data = _db.SimpleGet(_accountTable, _reflectionHelper.GetPropNames(typeof(Account)), new Dictionary<string, object>
             {
                 { nameof(Account.Username), username }
             }, new Filter { Comparison = Comparison.Equal, Name = nameof(Account.Username) });
@@ -53,7 +57,7 @@ namespace CDS.APICore.Bussiness
 
         public Account Get(int id)
         {
-            var data = _db.SimpleGet(_accountTable, _db.GetColumns(typeof(Account)), new Dictionary<string, object>
+            var data = _db.SimpleGet(_accountTable, _reflectionHelper.GetPropNames(typeof(Account)), new Dictionary<string, object>
             {
                 { nameof(Account.Id), id }
             }, new Filter { Comparison = Comparison.Equal, Name = nameof(Account.Id) });

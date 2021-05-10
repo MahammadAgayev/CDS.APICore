@@ -5,6 +5,7 @@ using System.Linq;
 
 using CDS.APICore.Bussiness.Abstraction;
 using CDS.APICore.Constants;
+using CDS.APICore.DataAccess;
 using CDS.APICore.DataAccess.Abstraction;
 using CDS.APICore.Entities;
 using CDS.APICore.Entities.Enums;
@@ -133,6 +134,59 @@ namespace CDS.APICore.Bussiness
 
             tx.Commit();
         }
+
+        public List<Agregation> GetAgregations(PeriodType periodType, DateTime from, AgregationBy agregationBy)
+        {
+            var data = _db.SimpleGet("Agregations", _reflectionHelper.GetPropNames(typeof(Agregation)), new Dictionary<string, object>
+            {
+                { nameof(Agregation.PeriodType), periodType },
+                { nameof(Agregation.AgregationBy), agregationBy },
+                { nameof(Agregation.PeriodStart), from}
+            }, new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.PeriodType)},
+               new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.AgregationBy) },
+               new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.PeriodStart) });
+
+            var agregations = new List<Agregation>();
+
+            foreach (var item in data.Rows.OfType<DataRow>())
+            {
+                var agrr = this.getFromDbRow(item);
+
+                agrr.PeriodType = item.Field<PeriodType>("PeriodType");
+                agrr.Tag = item.Field<string>("Tag");
+                agrr.AgregationBy = item.Field<AgregationBy>("AgregationBy");
+                agrr.Id = item.Field<int>("Id");
+
+                agregations.Add(agrr);
+            }
+
+            return agregations;
+        }
+
+        public List<Agregation> GetAgregations(string tag)
+        {
+            var data = _db.SimpleGet("Agregations", _reflectionHelper.GetPropNames(typeof(Agregation)), new Dictionary<string, object>
+            {
+                { nameof(Agregation.Tag), tag },
+            }, new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.Tag) });
+
+            var agregations = new List<Agregation>();
+
+            foreach (var item in data.Rows.OfType<DataRow>())
+            {
+                var agrr = this.getFromDbRow(item);
+
+                agrr.PeriodType = item.Field<PeriodType>("PeriodType");
+                agrr.Tag = item.Field<string>("Tag");
+                agrr.AgregationBy = item.Field<AgregationBy>("AgregationBy");
+                agrr.Id = item.Field<int>("Id");
+
+                agregations.Add(agrr);
+            }
+
+            return agregations;
+        }
+
 
 
         private string createQueryDynamic(string tablename, string countableColumn, string dateColumn, PeriodType periodType, DateTime from ,params string[] groupColumns)
