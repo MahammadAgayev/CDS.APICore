@@ -67,7 +67,6 @@ namespace CDS.APICore
 
             });
 
-
             _ = services.AddQuartz(q =>
             {
                 q.UseMicrosoftDependencyInjectionScopedJobFactory();
@@ -101,12 +100,10 @@ namespace CDS.APICore
                     .WithIdentity("DailyLocationAgregationJob-trigger") // give the trigger a unique name
                     .WithCronSchedule("0 6 * * * ?"));
             });
-
             _ = services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             _ = services.Configure<AppSettings>(this.Configuration.GetSection("AppSettings"));
-
-            _ = services.AddSingleton<IDbHelper>(x => new SqlDbHelper("Data Source = .; Initial Catalog = NwPrdb;Integrated Security= true"));
+            _ = services.AddSingleton<IDbHelper>(x => new SqlDbHelper(this.Configuration.GetConnectionString("default")));
 
             _ = services.AddScoped<IAccountManager, AccountManager>();
             _ = services.AddScoped<ICateringManager, CateringManager>();
@@ -118,6 +115,7 @@ namespace CDS.APICore
             _ = services.AddScoped<ITagManager, TagManager>();
             _ = services.AddScoped<IAgregationManager, AgregationManager>();
             _ = services.AddScoped<IParamManager, DbParamManager>();
+            _ = services.AddScoped<IAggregationService, AggregationService>();
 
             _ = services.AddScoped<IHashService, HashService>();
             _ = services.AddScoped<IAccountService, AccountService>();

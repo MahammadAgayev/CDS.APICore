@@ -71,7 +71,7 @@ namespace CDS.APICore.DataAccess
                 _ = cmd.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-           using var readder = cmd.ExecuteReader();
+            using var readder = cmd.ExecuteReader();
 
             var dt = new DataTable();
             dt.Load(readder);
@@ -103,7 +103,7 @@ namespace CDS.APICore.DataAccess
             return cmd.ExecuteNonQuery();
         }
 
-        public DataTable SimpleGet(string tablename, string[] columns, IDbTransaction transaction,Dictionary<string, object> parametres, params Filter[] filters)
+        public DataTable SimpleGet(string tablename, string[] columns, IDbTransaction transaction, Dictionary<string, object> parametres, params Filter[] filters)
         {
             string columsnQuery = string.Join(",", columns);
             string query = $"select {columsnQuery} from {tablename} {this.createFilterQuery(filters)}";
@@ -137,7 +137,7 @@ namespace CDS.APICore.DataAccess
 
             var val = cmd.ExecuteScalar();
 
-            return val == DBNull.Value ? default : (T)val;
+            return val == null ? default : (T)val;
         }
 
         public void Execute(string query, IDbTransaction tx, Dictionary<string, object> parametres)
@@ -236,7 +236,7 @@ namespace CDS.APICore.DataAccess
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach(var j in joins)
+            foreach (var j in joins)
             {
                 sb.AppendLine($"{j.JoinType} join {j.TableName} on {j.TableName}.{j.JoinColumn} = {j.JoinsToTableName}.{j.JoinsToColumn}");
             }

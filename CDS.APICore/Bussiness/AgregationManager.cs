@@ -52,6 +52,7 @@ namespace CDS.APICore.Bussiness
 
                 int cateringId = item.Field<int>(AgregationConstants.CateringId);
 
+                aggrr.PeriodStart = _timeManager.FromUnixTime(item.Field<int>("periodtsart"));
                 aggrr.AgregationBy = AgregationBy.Catering;
                 aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> { { AgregationConstants.CateringId, cateringId.ToString() } });
                 aggrr.Name = $"Aggr_{_cateringManager.Get(cateringId).Name}_{periodType}";
@@ -77,6 +78,8 @@ namespace CDS.APICore.Bussiness
 
                 int customerId = item.Field<int>(AgregationConstants.CustomerId);
 
+                aggrr.PeriodStart = _timeManager.FromUnixTime(item.Field<int>("periodtsart"));
+                aggrr.PeriodStart = _timeManager.FromUnixTime(item.Field<int>("periodtsart"));
                 aggrr.AgregationBy = AgregationBy.Customer;
                 aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> { { AgregationConstants.CustomerId, customerId.ToString() } });
                 aggrr.Name = $"Aggr_{_customerManager.Get(customerId).IdentityTag}_{periodType}";
@@ -103,9 +106,13 @@ namespace CDS.APICore.Bussiness
                 int customerId = item.Field<int>(AgregationConstants.CustomerId);
                 int cateringId = item.Field<int>(AgregationConstants.CateringId);
 
-                aggrr.AgregationBy = AgregationBy.Customer;
-                aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> { { AgregationConstants.CustomerId, customerId.ToString() },
-                    { AgregationConstants.CateringId, cateringId.ToString() } });
+                aggrr.PeriodStart = _timeManager.FromUnixTime(item.Field<int>("periodtsart"));
+                aggrr.AgregationBy = AgregationBy.CustomerCatering;
+                aggrr.Tag = _tagManager.Tag(new Dictionary<string, string> 
+                {
+                    { AgregationConstants.CustomerId, customerId.ToString() },
+                    { AgregationConstants.CateringId, cateringId.ToString() }
+                });
                 aggrr.Name = $"Aggr_{_customerManager.Get(customerId).IdentityTag}_{periodType}";
                 aggrr.PeriodType = periodType;
 
@@ -144,7 +151,7 @@ namespace CDS.APICore.Bussiness
                 { nameof(Agregation.PeriodStart), from}
             }, new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.PeriodType)},
                new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.AgregationBy) },
-               new Filter { Comparison = Comparison.Equal, Name = nameof(Agregation.PeriodStart) });
+               new Filter { Comparison = Comparison.GreaterThan, Name = nameof(Agregation.PeriodStart) });
 
             var agregations = new List<Agregation>();
 
@@ -152,6 +159,7 @@ namespace CDS.APICore.Bussiness
             {
                 var agrr = this.getFromDbRow(item);
 
+                agrr.PeriodStart = item.Field<DateTime>("PeriodStart");
                 agrr.PeriodType = item.Field<PeriodType>("PeriodType");
                 agrr.Tag = item.Field<string>("Tag");
                 agrr.AgregationBy = item.Field<AgregationBy>("AgregationBy");
@@ -176,6 +184,7 @@ namespace CDS.APICore.Bussiness
             {
                 var agrr = this.getFromDbRow(item);
 
+                agrr.PeriodStart = item.Field<DateTime>("PeriodStart");
                 agrr.PeriodType = item.Field<PeriodType>("PeriodType");
                 agrr.Tag = item.Field<string>("Tag");
                 agrr.AgregationBy = item.Field<AgregationBy>("AgregationBy");
@@ -193,7 +202,7 @@ namespace CDS.APICore.Bussiness
         {
             string groupedColumnsQuery = groupColumns is null ? "" : $",{string.Join(",", groupColumns)}";
 
-            return @$"select FLOOR(DATEDIFF(second, '1970-01-01', {dateColumn})/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} as periodtsart, count(1) as [count], sum({countableColumn}) as [sum], avg({countableColumn}) as [avg], min({countableColumn}) as [min],
+            return @$"select FLOOR(DATEDIFF(second, '1970-01-01', {dateColumn})/{this.getDiffSecond(periodType)})*{this.getDiffSecond(periodType)} as periodtsart, count(1) as [count], sum({countableColumn}) as [sum], avg({countableColumn}) as [average], min({countableColumn}) as [min],
                      max({countableColumn}) as [max]
                      {groupedColumnsQuery}
                      from {tablename}
@@ -250,10 +259,9 @@ namespace CDS.APICore.Bussiness
         {
             return new Agregation
             {
-                PeriodStart = _timeManager.FromUnixTime(row.Field<int>("periodtsart")),
                 Count = row.Field<int>("count"),
                 Sum = row.Field<decimal>("sum"),
-                Average = row.Field<decimal>("avg"),
+                Average = row.Field<decimal>("average"),
                 Min = row.Field<decimal>("min"),
                 Max = row.Field<decimal>("max"),
             };

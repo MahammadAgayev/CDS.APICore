@@ -31,6 +31,7 @@ namespace CDS.APICore.Bussiness
                 { nameof(Catering.AddressText), catering.AddressText },
                 { nameof(Catering.Latitude), catering.Latitude },
                 { nameof(Catering.Longitude), catering.Longitude },
+                { nameof(Catering.Created), DateTime.Now },
                 { "CategoryId", catering.CateringCategory.Id}
             });
 

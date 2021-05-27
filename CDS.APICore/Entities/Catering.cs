@@ -14,5 +14,6 @@ namespace CDS.APICore.Entities
         public string AddressText { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
+        public DateTime Created { get; set; }
     }
 }

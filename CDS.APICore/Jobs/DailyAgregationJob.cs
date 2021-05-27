@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using CDS.APICore.Bussiness.Abstraction;
 using CDS.APICore.Entities.Enums;
-
+using CDS.APICore.Helpers;
 using Quartz;
 
 namespace CDS.APICore.Jobs
@@ -41,21 +41,21 @@ namespace CDS.APICore.Jobs
                 switch (agregation)
                 {
                     case AgregationBy.Customer:
-                        var culastdate = _paramManager.GetValue<DateTime>(_paramKeyCustomer);
+                        var culastdate = this.getDateVal(_paramKeyCustomer);
                         _agregationManager.AgregateCustomers(PeriodType.Daily, culastdate);
-                        _paramManager.SetValue(_paramKeyCustomer, culastdate.AddDays(1));
+                        this.setValue(_paramKeyCustomer, _timeManager.Now);
                         break;
                     case AgregationBy.Catering:
-                        var calastdate = _paramManager.GetValue<DateTime>(_paramKeyCatering);
+                        var calastdate = this.getDateVal(_paramKeyCatering);
                         _agregationManager.AgregateCaterings(PeriodType.Daily, calastdate);
-                        _paramManager.SetValue(_paramKeyCatering, calastdate.AddDays(1));
+                        this.setValue(_paramKeyCatering, _timeManager.Now);
                         break;
                     case AgregationBy.CateringCategory:
                         break;
                     case AgregationBy.CustomerCatering:
-                        var cclastdate = _paramManager.GetValue<DateTime>(_paramKeyCustomerCatering);
+                        var cclastdate = this.getDateVal(_paramKeyCustomerCatering);
                         _agregationManager.AgregateCateringCustomers(PeriodType.Daily, cclastdate);
-                        _paramManager.SetValue(_paramKeyCustomerCatering, cclastdate.AddDays(1));
+                        this.setValue(_paramKeyCustomerCatering, _timeManager.Now);
                         break;
                 }
 
@@ -63,6 +63,18 @@ namespace CDS.APICore.Jobs
             }
 
             throw new InvalidOperationException("Job trigger must have a agregation type");
+        }
+
+        private DateTime getDateVal(string key)
+        {
+            string val = _paramManager.GetValue(key);
+
+            return _timeManager.Parse(val, SystemDefaults.DefaultFormat);
+        }
+
+        private void setValue(string key, DateTime value)
+        {
+            _paramManager.SetValue(key, value.ToString(SystemDefaults.DefaultFormat));
         }
     }
 }

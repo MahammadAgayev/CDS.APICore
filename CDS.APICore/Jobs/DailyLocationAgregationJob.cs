@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 using CDS.APICore.Bussiness.Abstraction;
-
+using CDS.APICore.Helpers;
 using Quartz;
 
 namespace CDS.APICore.Jobs
@@ -25,13 +25,28 @@ namespace CDS.APICore.Jobs
 
         public Task Execute(IJobExecutionContext context)
         {
-            var lastdate = _paramManager.GetValue<DateTime>(_paramKey);
+            return Task.CompletedTask;
+
+            var lastdate = this.getDateVal(_paramKey);
 
             _agregationManager.AggregateLocations(Entities.Enums.PeriodType.Hourly, lastdate);
 
-            _paramManager.SetValue(_paramKey, lastdate.AddDays(1));
+            this.setValue(_paramKey, _timeManager.Now);
 
             return Task.CompletedTask;
+        }
+
+
+        private DateTime getDateVal(string key)
+        {
+            string val = _paramManager.GetValue(key);
+
+            return _timeManager.Parse(val, SystemDefaults.DefaultFormat);
+        }
+
+        private void setValue(string key, DateTime value)
+        {
+            _paramManager.SetValue(key, value.ToString(SystemDefaults.DefaultFormat));
         }
     }
 }

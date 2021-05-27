@@ -27,9 +27,9 @@ namespace CDS.APICore.Bussiness
 
             var dict = new Dictionary<string, string>();
 
-            for (int i = 0; i < parts.Length; i+=2)
+            for (int i = 1; i < parts.Length; i+=2)
             {
-                dict.Add(parts[i], parts[i + 1]);
+                dict.Add(parts[i - 1], parts[i]);
             }
 
             return dict;

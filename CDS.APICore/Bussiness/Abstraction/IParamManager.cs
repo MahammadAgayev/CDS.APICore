@@ -2,8 +2,8 @@
 {
     public interface IParamManager
     {
-        void SetValue(string key, object value);
+        void SetValue(string key, string value);
 
-        T GetValue<T>(string key);
+        string GetValue(string key);
     }
 }

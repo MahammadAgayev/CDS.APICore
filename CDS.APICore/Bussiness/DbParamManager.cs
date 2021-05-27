@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using CDS.APICore.Bussiness.Abstraction;
 using CDS.APICore.DataAccess.Abstraction;
+using CDS.APICore.Helpers;
 
 namespace CDS.APICore.Bussiness
 {
@@ -20,36 +21,39 @@ namespace CDS.APICore.Bussiness
             _db = db;
         }
 
-        public T GetValue<T>(string key)
+        public string GetValue(string key)
         {
-            return _db.ExecuteScalar<T>($"select [value] from {_table} where [key] = @key", null, new Dictionary<string, object>
+            return _db.ExecuteScalar<string>($"select [value] from {_table} where [key] = @key", null, new Dictionary<string, object>
             {
                 { "key", key }
             });
         }
 
-        public void SetValue(string key, object value)
+        public void SetValue(string key, string value)
         {
-            int affectedRow = _db.Update(_table, null, new Dictionary<string, object>
+            int affectedRow = _db.ExecuteScalar<int>($"update {_table} set value = @value where [key] = @key", null, new Dictionary<string, object>
             {
+                 { "value", value },
                  { "key", key }
-            }, new DataAccess.Filter { Comparison = DataAccess.Comparison.Equal, Name = "key" });
+            });
 
-            if(affectedRow == 0)
+            if (affectedRow == 0)
             {
                 try
                 {
                     _ = _db.Insert(_table, null, new Dictionary<string, object>
                     {
+                         { "value", value },
                          { "key", key }
                     });
                 }
                 catch
                 {
-                    _db.Update(_table, null, new Dictionary<string, object>
+                    _db.ExecuteScalar<int>($"update {_table} set value = @value where [key] = @key", null, new Dictionary<string, object>
                     {
+                         { "value", value },
                          { "key", key }
-                    }, new DataAccess.Filter { Comparison = DataAccess.Comparison.Equal, Name = "key" });
+                    });
                 }
             }
         }
